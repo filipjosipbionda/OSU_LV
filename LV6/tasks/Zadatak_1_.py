@@ -82,44 +82,102 @@ plt.title("Tocnost: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p))))
 plt.tight_layout()
 plt.show()
 
-#6.5.1
-def run_KNN(neighbours:int):
-    KNN_model=KNeighborsClassifier(n_neighbors=neighbours)
+#6.5.1.1-6.5.1.2
+
+def run_task(K):
+    KNN_model=KNeighborsClassifier(n_neighbors=K)
     KNN_model.fit(X_train_n,y_train)
 
-    y_test_p_KNN=KNN_model.predict(X_test_n)
     y_train_p_KNN=KNN_model.predict(X_train_n)
+    y_test_p_KNN=KNN_model.predict(X_test_n)
 
-    print(f'KNN: {neighbours}')
-    print(f'Accuracy train: {accuracy_score(y_train,y_train_p_KNN)}')
-    print(f'Accuracy test: {accuracy_score(y_test,y_test_p_KNN)}')
+    print("KNN: ")
+    print("Tocnost train: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p_KNN))))
+    print("Tocnost test: " + "{:0.3f}".format((accuracy_score(y_test, y_test_p_KNN))))
 
-    plot_decision_regions(X_train_n,y_train,classifier=KNN_model)
+    plot_decision_regions(X_train_n, y_train, classifier=KNN_model)
     plt.xlabel('x_1')
     plt.ylabel('x_2')
-    plt.legend(loc='upper right')
-    plt.title(f'Accuracy: {accuracy_score(y_train,y_train_p_KNN)}')
+    plt.legend(loc='upper left')
+    plt.title("Tocnost: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p))))
     plt.tight_layout()
     plt.show()
 
-run_KNN(5)
-run_KNN(1)#underfit
-run_KNN(100)#overfit
 
-KNN_model = KNeighborsClassifier(n_neighbors=7)
-KNN_model.fit(X_train_n, y_train)
-y_test_p_KNN = KNN_model.predict(X_test_n)
-y_train_p_KNN = KNN_model.predict(X_train_n)
+run_task(5)
+run_task(1)#overfit
+run_task(100)#underfit
 
-model = KNeighborsClassifier()
-scores = cross_val_score(KNN_model, X_train, y_train, cv=5)
+#6.5.2
+from sklearn.model_selection import GridSearchCV
+model=KNeighborsClassifier()
+scores=cross_val_score(model,X_train_n,y_train,cv=5)
 print(scores)
 
-array = np.arange(1, 101)
-param_grid = {'n_neighbors':array}
-knn_gscv = GridSearchCV(model, param_grid , cv=5, scoring ='accuracy', n_jobs =-1)
-knn_gscv.fit(X_train, y_train)
-print(knn_gscv.best_params_)
-print(knn_gscv.best_score_)
-print(knn_gscv.cv_results_)
+param_grid={
+    'n_neighbors':range(1,20)
+}
+
+grid_search=GridSearchCV(model,param_grid,cv=5,scoring="accuracy",n_jobs=-1)
+grid_search.fit(X_train_n,y_train)
+k=grid_search.best_params_['n_neighbors']
+print(k)
+
+model.set_params(n_neighbors=k)
+model.fit(X_train_n,y_train)
+y_train_p_KNN=model.predict(X_train_n)
+y_test_p_KNN=model.predict(X_test_n)
+
+print("KNN: ")
+print("Tocnost train: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p))))
+print("Tocnost test: " + "{:0.3f}".format((accuracy_score(y_test, y_test_p))))
+plot_decision_regions(X_train_n, y_train, classifier=model)
+plt.xlabel('x_1')
+plt.ylabel('x_2')
+plt.legend(loc='upper left')
+plt.title("Tocnost: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p))))
+plt.tight_layout()
+plt.show()
+
+
+
+
+#6.5.3
+SVM_model=svm.SVC(kernel='rbf',gamma=0.1,C=10)
+SVM_model.fit(X_train_n,y_train)
+
+y_train_p_SVM=SVM_model.predict(X_train_n)
+y_test_p_SVM=SVM_model.predict(X_test_n)
+
+print("SVM: ")
+print("Tocnost train: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p_SVM))))
+print("Tocnost test: " + "{:0.3f}".format((accuracy_score(y_test, y_test_p_SVM))))
+
+plot_decision_regions(X_train_n, y_train, classifier=SVM_model)
+plt.xlabel('x_1')
+plt.ylabel('x_2')
+plt.legend(loc='upper left')
+plt.title("Tocnost: " + "{:0.3f}".format((accuracy_score(y_train, y_train_p_SVM))))
+plt.tight_layout()
+plt.show()
+
+#kada sam promijenio gammu s 1 na 0.1 i C s 0.1 na 10, granica odluke mi se dosta zaoblila i dala je nekakav oblik priblizan elipsi koji se nalazi u donjem lijevom kutu 
+
+#6.5.4
+SVM_model=svm.SVC(kernel='rbf')
+
+param_grid={
+    'C':[10,100,100],
+    'gamma':[10,1,0.1,0.01]
+}
+svm_gscv=GridSearchCV(SVM_model,param_grid,cv=5,scoring="accuracy",n_jobs=-1)
+svm_gscv.fit(X_train_n,y_train)
+
+C=svm_gscv.best_params_['C']
+gamma=svm_gscv.best_params_['gamma']
+
+print("Optimalna vrijednosti:")
+print("C:",C)
+print("gamma:",gamma)
+print ( svm_gscv . best_score_ )
 

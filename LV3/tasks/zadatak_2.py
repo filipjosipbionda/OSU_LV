@@ -37,9 +37,15 @@ plt.show()
 
 #e
 
-cylinder_cars_grouped=data.groupby('Cylinders')['CO2 Emissions (g/km)'].mean()
-print(cylinder_cars_grouped)
-cylinder_cars_grouped.plot(kind='bar',x=cylinder_cars_grouped.index,y=cylinder_cars_grouped.values,xlabel='Cylinders', ylabel='CO2 emissions (g/km)', title='CO2 emissions by number of cylinders')
+avg_C02_by_cylinders=data.groupby('Cylinders')['CO2 Emissions (g/km)'].mean()#grupira po cylindrima, zatim pristupa po vrijednostima cylindara svim vrijednostima za emisije CO2 koje se nalaze pod tim cilindrom i racuna njihovu srednju vrijednost
+# i sprema to u polje srednjih vrijednosti 
+
+avg_C02_by_cylinders.plot(kind='bar')
+
+plt.title('Average CO2 Emissions by Cylinders')
+plt.xlabel('Cylinders')
+plt.ylabel('CO2 Emissions (g/km)')
+plt.xticks(rotation=0)
 plt.show()
 
 
